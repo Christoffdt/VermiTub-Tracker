@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vermis Master Dashboard v6</title>
+  <style>
+    :root {
+      --bg-primary: #121811;
+      --bg-card: #1c241b;
+      --bg-card-alt: #253124;
+      --text-main: #e2ebe1;
+      --text-muted: #9ab098;
+      --accent-green: #4caf50;
+      --accent-bright: #81c784;
+      --accent-amber: #ffb74d;
+      --accent-blue: #64b5f6;
+      --border-color: #2e3d2c;
+      --danger-color: #e57373;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      height: 100dvh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Main Scrollable Area */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Bottom Navigation Bar */
+    nav {
+      flex-shrink: 0;
+      background-color: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 2px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      padding: 2px 0;
+    }
+
+    .nav-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .nav-btn.active {
+      color: var(--accent-bright);
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card h2 {
+      font-size: 0.88rem;
+      color: var(--accent-bright);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card h3 {
+      font-size: 0.82rem;
+      color: var(--accent-amber);
+      margin-top: 4px;
+    }
+
+    /* Form Controls */
+    label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-weight: 500;
+    }
+
+    input, select {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-green);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* Diagrams */
+    .diagram-container {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .diagram-container:active {
+      border-color: var(--accent-bright);
+    }
+
+    .diagram-hint {
+      position: absolute;
+      top: 4px;
+      right: 8px;
+      font-size: 0.6rem;
+      color: var(--accent-amber);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      max-height: 95px;
+    }
+
+    /* Progress Bars */
+    .progress-bg {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      height: 18px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-bright));
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    /* Alert Boxes & Badges */
+    .alert-box {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .alert-info {
+      background-color: rgba(100, 181, 246, 0.12);
+      border: 1px solid var(--accent-blue);
+      color: #90caf9;
+    }
+
+    .alert-warning {
+      background-color: rgba(255, 183, 77, 0.12);
+      border: 1px solid var(--accent-amber);
+      color: #ffe082;
+    }
+
+    .alert-danger {
+      background-color: rgba(229, 115, 115, 0.18);
+      border: 1px solid var(--danger-color);
+      color: #ef9a9a;
+      font-weight: 600;
+    }
+
+    .stat-badge {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--bg-primary);
+      color: var(--accent-amber);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-action {
+      background-color: var(--accent-green);
+      color: #ffffff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-action:active {
+      opacity: 0.9;
+    }
+
+    .btn-subtle {
+      background-color: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    ul, ol {
+      padding-left: 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    li strong { color: var(--text-main); }
+  </style>
+</head>
+<body>
+
+  <!-- Main Scrollable Content -->
+  <main>
+
+    <!-- TAB 0: OVERVIEW (SINGLE-PAGE LANDING) -->
+    <div id="tab-overview" class="tab-panel active">
+      
+      <!-- Overall Harvest Tracker Banner -->
+      <div class="card" style="border-color: var(--accent-green);">
+        <h2>
+          Master Harvest Countdown
+          <span id="ovMasterBadge" class="stat-badge">-- Days Left</span>
+        </h2>
+        <div class="progress-bg">
+          <div id="ovMasterFill" class="progress-fill"></div>
+          <div id="ovMasterText" class="progress-text">0% to System Harvest</div>
+        </div>
+        <div id="ovMasterDateInfo" style="font-size:0.75rem; color:var(--text-muted); text-align:center;">
+          Target Joint Harvest Date: --
+        </div>
+      </div>
+
+      <!-- Smart Pre-Harvest Trapping Warning (Conditional) -->
+      <div id="ovTrappingWarning" class="alert-box alert-danger" style="display: none;">
+        ⚠️ <strong>CRITICAL WARNING:</strong> Tub 1 is nearly full, but the 40L tote in Tub 2 is NOT currently baited! Bait the tote immediately so juvenile worms are trapped before Tub 1 hits 100% harvest.
+      </div>
+
+      <!-- Tub 1 Diagram Card -->
+      <div class="card">
+        <h2>
+          Tub 1: Mature Worm Wedge
+          <span id="ovTub1Badge" class="stat-badge">20% (35L)</span>
+        </h2>
+        <div class="diagram-container" onclick="advanceTub1Step()">
+          <span class="diagram-hint">Tap to Advance</span>
+          <svg id="svgTub1" viewBox="0 0 300 100"><!-- Rendered by JS --></svg>
+        </div>
+        <div id="ovTub1Info" class="alert-box alert-info"><!-- Rendered by JS --></div>
+      </div>
+
+      <!-- Tub 2 Diagram Card -->
+      <div class="card">
+        <h2>
+          Tub 2: Nursery & 40L Tote
+          <span id="ovTub2Badge" class="stat-badge">Active</span>
+        </h2>
+        <div class="diagram-container">
+          <span class="diagram-hint">Tap Side to Advance</span>
+          <svg id="svgTub2" viewBox="0 0 300 105"><!-- Rendered by JS --></svg>
+        </div>
+        <div id="ovTub2Info" class="alert-box alert-warning"><!-- Rendered by JS --></div>
+      </div>
+
+      <!-- Fact / Tip of the Day Card -->
+      <div class="card" style="background: var(--bg-card-alt);">
+        <h2>
+          Randomized Tip / Fact
+          <button class="btn-action btn-subtle" style="width:auto; padding:2px 8px; font-size:0.68rem;" onclick="nextTip()">Next Tip ➔</button>
+        </h2>
+        <p id="tipText" style="font-size:0.78rem; color:var(--text-main); line-height:1.4;">
+          Loading vermicomposting tip...
+        </p>
+      </div>
+
+    </div>
+
+    <!-- TAB 1: TUB 1 WEDGE TRACKER -->
+    <div id="tab-tub1" class="tab-panel">
+      <div class="card">
+        <h2>
+          Tub 1: Feeding Controls
+          <span id="tub1VolBadge" class="stat-badge">20% (35L)</span>
+        </h2>
+
+        <label>
+          Wedge Start / Reset Date:
+          <input type="date" id="tub1StartDate" onchange="updateTub1Timeline()">
+        </label>
+
+        <label>
+          Current Weekly Feed Step:
+          <select id="tub1StepSelect" onchange="onTub1StepSelectChange()"><!-- Populate --></select>
+        </label>
+
+        <div class="progress-bg">
+          <div id="tub1Fill" class="progress-fill"></div>
+          <div id="tub1ProgressText" class="progress-text">20% Complete</div>
+        </div>
+
+        <div class="alert-box alert-info" id="tub1TargetAlert">
+          Target Dates Calculating...
+        </div>
+
+        <button class="btn-action" onclick="advanceTub1Step()">Advance to Next Weekly Feed</button>
+        <button class="btn-action btn-subtle" onclick="toggleTub1Direction()">Toggle March Direction (<span id="dirTxt">LTR ➔</span>)</button>
+        <button class="btn-action btn-subtle" onclick="resetTub1Wedge()">Reset / Harvest (Flip Direction)</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: TUB 2 NURSERY TRACKER -->
+    <div id="tab-tub2" class="tab-panel">
+      
+      <!-- Left Side Card -->
+      <div class="card">
+        <h2>
+          Left Side (Older Juveniles)
+          <span id="side1PhaseBadge" class="stat-badge">Phase 2: Growing</span>
+        </h2>
+        <label>
+          Phase Start Date:
+          <input type="date" id="side1StartDate" onchange="updateTub2Timelines()">
+        </label>
+
+        <label>
+          Current Active Phase:
+          <select id="side1PhaseSelect" onchange="updateTub2Timelines()">
+            <option value="1">Phase 1: Incubation (Cocoons Hatching)</option>
+            <option value="2">Phase 2: Growing (Food Depletion)</option>
+            <option value="3">Phase 3: Trapping (Bait in 40L Tote)</option>
+          </select>
+        </label>
+
+        <div class="progress-bg">
+          <div id="side1Fill" class="progress-fill"></div>
+          <div id="side1ProgressText" class="progress-text">0% Complete</div>
+        </div>
+
+        <div class="alert-box alert-warning" id="side1Alert">
+          Date Range Calculating...
+        </div>
+
+        <button class="btn-action" onclick="advanceSidePhase(1)">Advance Left Phase</button>
+      </div>
+
+      <!-- Right Side Card -->
+      <div class="card">
+        <h2>
+          Right Side (New Cocoons)
+          <span id="side2PhaseBadge" class="stat-badge">Phase 1: Incubation</span>
+        </h2>
+        <label>
+          Phase Start Date:
+          <input type="date" id="side2StartDate" onchange="updateTub2Timelines()">
+        </label>
+
+        <label>
+          Current Active Phase:
+          <select id="side2PhaseSelect" onchange="updateTub2Timelines()">
+            <option value="1">Phase 1: Incubation (Cocoons Hatching)</option>
+            <option value="2">Phase 2: Growing (Food Depletion)</option>
+            <option value="3">Phase 3: Trapping (Bait in 40L Tote)</option>
+          </select>
+        </label>
+
+        <div class="progress-bg">
+          <div id="side2Fill" class="progress-fill"></div>
+          <div id="side2ProgressText" class="progress-text">0% Complete</div>
+        </div>
+
+        <div class="alert-box alert-warning" id="side2Alert">
+          Date Range Calculating...
+        </div>
+
+        <button class="btn-action" onclick="advanceSidePhase(2)">Advance Right Phase</button>
+      </div>
+
+    </div>
+
+    <!-- TAB 3: SETTINGS -->
+    <div id="tab-settings" class="tab-panel">
+      
+      <div class="card">
+        <h2>Tub Volume Configuration</h2>
+        <label>
+          Total Bathtub Capacity (Liters):
+          <input type="number" id="cfgTubVolume" value="175" onchange="saveSettings()">
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>Weather Season Start Dates</h2>
+        <div class="grid-2">
+          <label>Summer Start: <input type="date" id="cfgSummerStart" onchange="saveSettings()"></label>
+          <label>Autumn Start: <input type="date" id="cfgAutumnStart" onchange="saveSettings()"></label>
+          <label>Winter Start: <input type="date" id="cfgWinterStart" onchange="saveSettings()"></label>
+          <label>Spring Start: <input type="date" id="cfgSpringStart" onchange="saveSettings()"></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Seasonal Duration Matrix (Weeks)</h2>
+        <div id="harmonyAlert" class="alert-box alert-info">
+          Validation Check: All seasons in 2:1 harmonic balance.
+        </div>
+
+        <h3>Summer Parameters</h3>
+        <div class="grid-2">
+          <label>Tub 1 Fill ($T$ wks): <input type="number" id="cfgSumT" value="6" onchange="saveSettings()"></label>
+          <label>Phase 1 Incubation: <input type="number" id="cfgSumP1" value="5" onchange="saveSettings()"></label>
+          <label>Phase 2 Growing: <input type="number" id="cfgSumP2" value="4" onchange="saveSettings()"></label>
+          <label>Phase 3 Trapping: <input type="number" id="cfgSumP3" value="3" onchange="saveSettings()"></label>
+        </div>
+
+        <h3>Spring / Autumn Parameters</h3>
+        <div class="grid-2">
+          <label>Tub 1 Fill ($T$ wks): <input type="number" id="cfgAutT" value="8" onchange="saveSettings()"></label>
+          <label>Phase 1 Incubation: <input type="number" id="cfgAutP1" value="7" onchange="saveSettings()"></label>
+          <label>Phase 2 Growing: <input type="number" id="cfgAutP2" value="5" onchange="saveSettings()"></label>
+          <label>Phase 3 Trapping: <input type="number" id="cfgAutP3" value="4" onchange="saveSettings()"></label>
+        </div>
+
+        <h3>Winter Parameters</h3>
+        <div class="grid-2">
+          <label>Tub 1 Fill ($T$ wks): <input type="number" id="cfgWinT" value="12" onchange="saveSettings()"></label>
+          <label>Phase 1 Incubation: <input type="number" id="cfgWinP1" value="10" onchange="saveSettings()"></label>
+          <label>Phase 2 Growing: <input type="number" id="cfgWinP2" value="9" onchange="saveSettings()"></label>
+          <label>Phase 3 Trapping: <input type="number" id="cfgWinP3" value="5" onchange="saveSettings()"></label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 4: COMPREHENSIVE OPERATIONS MANUAL -->
+    <div id="tab-manual" class="tab-panel">
+      
+      <div class="card">
+        <h2>1. Feeding Guidelines & Food Categories</h2>
+        <p style="font-size:0.78rem; color:var(--text-muted);">
+          Feed worms based on microbial activity. Always balance high-nitrogen green scraps with high-carbon brown bedding.
+        </p>
+
+        <h3>High-Value Trapping Lures (For 40L Central Tote)</h3>
+        <ul>
+          <li><strong>Papaya & Melon Rinds:</strong> High volatile sugar content, rapid microbial breakdown.</li>
+          <li><strong>Crushed Butternut & Squash:</strong> Soft, moist pulp that worms swarm within 48 hours.</li>
+          <li><strong>Sweet Potato Skins & Spent Coffee Grounds:</strong> Nitrogen boost that attracts hungry juveniles.</li>
+        </ul>
+
+        <h3>Bulk Wedge Food (Weekly Routine)</h3>
+        <ul>
+          <li><strong>Pre-Composted Garden Scraps:</strong> Partially decomposed leaves, crushed vegetable peels, soft fruit.</li>
+          <li><strong>Cardboard & Paper:</strong> Shredded unprinted cardboard, egg cartons, toilet paper rolls (carbon buffer).</li>
+        </ul>
+
+        <h3>Strictly Do Not Feed</h3>
+        <ul>
+          <li><strong>Citrus & Pineapple:</strong> High acid and d-limonene burn worm skin.</li>
+          <li><strong>Onions, Garlic, Chili:</strong> Pungent compounds drive worms out of the tub.</li>
+          <li><strong>Dairy, Meat, Oils:</strong> Triggers foul anaerobic odors and attracts blowflies/rodents.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>2. Calcium, Grit & pH Buffering</h2>
+        <p style="font-size:0.78rem; color:var(--text-muted);">
+          Worms have no teeth and rely on a muscular gizzard to grind food particles.
+        </p>
+        <ul>
+          <li><strong>Pulverized Eggshells:</strong> Bake dried eggshells and blend into fine dust. Sprinkle a tablespoon over every weekly feed. Provides essential calcium carbonate to buffer acidic food breakdown and gives necessary gizzard grit.</li>
+          <li><strong>Agricultural Lime / Rock Dust:</strong> If eggshells are unavailable, a light dusting of agricultural lime (calcium carbonate—never hydrated lime!) prevents "sour crop" (protein poisoning).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>3. Worm Tea vs. Raw Leachate</h2>
+        <ul>
+          <li><strong>Raw Leachate (Tub Plughole Runoff):</strong> This is excess liquid draining through un-processed waste. It contains anaerobic bacteria and phytotoxins. <em>Do not apply directly to delicate edible crops.</em> Dilute 1:20 for non-edible garden shrubs or lawn.</li>
+          <li><strong>Aerated Compost Tea (ACT - The Good Stuff):</strong> Steep 1kg of pure castings in a 10L bucket of unchlorinated well water with 1 tbsp molasses. Aerate with an aquarium air pump for 24 hours. Sprayed on leaves or roots, ACT introduces millions of beneficial aerobic microbes that suppress soil fungal pathogens.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>4. Deep Cleaning & Major Maintenance</h2>
+        <ul>
+          <li><strong>Clearing the Plughole:</strong> Every 6 months, inspect the plughole. Use a hose to flush fine silt out of the 19mm stone layer to maintain zero-resistance drainage.</li>
+          <li><strong>Shade Cloth Inspection:</strong> Check the mesh barrier during full tub resets. Ensure no sharp twigs have torn the cloth, which could allow fine castings into the drainage stones.</li>
+          <li><strong>Annual Reset:</strong> Once a year, empty both tubs down to the stone layer, rinse the 19mm aggregate with fresh well water, relight the shade cloth, and rebuild the base coir floor.</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('overview', this)">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>
+      Overview
+    </button>
+    <button class="nav-btn" onclick="switchTab('tub1', this)">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+      Tub 1
+    </button>
+    <button class="nav-btn" onclick="switchTab('tub2', this)">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+      Tub 2
+    </button>
+    <button class="nav-btn" onclick="switchTab('settings', this)">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6-3.6z"/></svg>
+      Settings
+    </button>
+    <button class="nav-btn" onclick="switchTab('manual', this)">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+      Manual
+    </button>
+  </nav>
+
+  <script>
+    // --- DATABASE OF TIPS & FACTS ---
+    const TIPS_DATABASE = [
+      "Worms have no teeth! They rely on a muscular gizzard and fine grit (like pulverized eggshells or rock dust) to grind food particles.",
+      "Red Wigglers are photophobic. Direct sunlight paralyzes their respiratory mucus within minutes. Always perform sunlight separation quickly on a tarp.",
+      "Under ideal Cape Town spring conditions (20°C–25°C), one adult worm produces 2 to 3 cocoons per week, with each cocoon hatching 2 to 4 babies.",
+      "Raw plughole runoff is 'leachate' (potential phytotoxins). True Aerated Compost Tea (ACT) is brewed by bubbling pure castings in well water with molasses.",
+      "Covering ONLY the active wedge with a damp worm blanket keeps it dark/humid while the tail end dries out, forcing stragglers to migrate forward.",
+      "Fine eggshell powder acts as a calcium carbonate buffer, preventing 'sour crop' (protein poisoning) caused by acidic fruit fermentations.",
+      "Eisenia fetida thrive between 15°C and 25°C. In extreme summer heat (>32°C), place a frozen water bottle wrapped in newspaper inside the tub.",
+      "Freezing and thawing kitchen scraps ruptures plant cell walls, allowing aerobic bacteria to colonize the food 3 times faster for quick worm digestion.",
+      "Vermicompost contains 5x more nitrogen, 7x more phosphorus, and 11x more potassium than standard topsoil, packed with plant-available enzymes.",
+      "The Cape Doctor wind dries out outdoor tubs rapidly. Keep your corrugated roof lids weighted with bricks and check wedge moisture twice weekly in summer."
+    ];
+
+    let currentTipIndex = 0;
+
+    // --- APP STATE & STORAGE ---
+    const DEFAULT_SETTINGS = {
+      tubVolume: 175,
+      summerStart: "2026-12-01",
+      autumnStart: "2026-03-01",
+      winterStart: "2026-06-01",
+      springStart: "2026-09-01",
+      sum: { T: 6, p1: 5, p2: 4, p3: 3 },
+      aut: { T: 8, p1: 7, p2: 5, p3: 4 },
+      win: { T: 12, p1: 10, p2: 9, p3: 5 }
+    };
+
+    let settings = JSON.parse(localStorage.getItem('vermi_settings')) || DEFAULT_SETTINGS;
+    let tub1Data = JSON.parse(localStorage.getItem('vermi_tub1')) || { startDate: new Date().toISOString().split('T')[0], step: 0, direction: 'LTR' };
+    let tub2Data = JSON.parse(localStorage.getItem('vermi_tub2')) || {
+      side1: { startDate: new Date().toISOString().split('T')[0], phase: 2 },
+      side2: { startDate: new Date().toISOString().split('T')[0], phase: 1 }
+    };
+
+    // --- TAB SWITCHING ---
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      if (btn) btn.classList.add('active');
+      renderOverview();
+    }
+
+    // --- SEASON ENGINE ---
+    function getCurrentSeason(dateStr) {
+      const d = dateStr ? new Date(dateStr) : new Date();
+      const year = d.getFullYear();
+      
+      const sumD = new Date(settings.summerStart || `${year}-12-01`);
+      const autD = new Date(settings.autumnStart || `${year}-03-01`);
+      const winD = new Date(settings.winterStart || `${year}-06-01`);
+      const sprD = new Date(settings.springStart || `${year}-09-01`);
+
+      if (d >= sumD || d < autD) return { name: 'Summer', key: 'sum', params: settings.sum };
+      if (d >= autD && d < winD) return { name: 'Autumn', key: 'aut', params: settings.aut };
+      if (d >= winD && d < sprD) return { name: 'Winter', key: 'win', params: settings.win };
+      return { name: 'Spring', key: 'aut', params: settings.aut };
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function formatShortDate(dateObj) {
+      const d = new Date(dateObj);
+      const day = d.getDate();
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${day} ${months[d.getMonth()]}`;
+    }
+
+    function getRandomTipIndex() {
+      return Math.floor(Math.random() * TIPS_DATABASE.length);
+    }
+
+    function nextTip() {
+      let newIndex;
+      do {
+        newIndex = getRandomTipIndex();
+      } while (newIndex === currentTipIndex && TIPS_DATABASE.length > 1);
+      
+      currentTipIndex = newIndex;
+      document.getElementById('tipText').innerText = TIPS_DATABASE[currentTipIndex];
+    }
+
+    // --- INITIALIZATION ---
+    function initApp() {
+      document.getElementById('cfgTubVolume').value = settings.tubVolume || 175;
+      document.getElementById('cfgSummerStart').value = settings.summerStart || "2026-12-01";
+      document.getElementById('cfgAutumnStart').value = settings.autumnStart || "2026-03-01";
+      document.getElementById('cfgWinterStart').value = settings.winterStart || "2026-06-01";
+      document.getElementById('cfgSpringStart').value = settings.springStart || "2026-09-01";
+
+      ['sum', 'aut', 'win'].forEach(s => {
+        document.getElementById(`cfg${capitalize(s)}T`).value = settings[s].T;
+        document.getElementById(`cfg${capitalize(s)}P1`).value = settings[s].p1;
+        document.getElementById(`cfg${capitalize(s)}P2`).value = settings[s].p2;
+        document.getElementById(`cfg${capitalize(s)}P3`).value = settings[s].p3;
+      });
+
+      document.getElementById('tub1StartDate').value = tub1Data.startDate;
+      document.getElementById('side1StartDate').value = tub2Data.side1.startDate;
+      document.getElementById('side2StartDate').value = tub2Data.side2.startDate;
+
+      document.getElementById('side1PhaseSelect').value = tub2Data.side1.phase;
+      document.getElementById('side2PhaseSelect').value = tub2Data.side2.phase;
+
+      // Select a random tip on page load/refresh
+      currentTipIndex = getRandomTipIndex();
+      document.getElementById('tipText').innerText = TIPS_DATABASE[currentTipIndex];
+
+      updateTub1Timeline();
+      updateTub2Timelines();
+      validateHarmony();
+      renderOverview();
+    }
+
+    // --- TUB 1 ENGINE ---
+    function updateTub1Timeline() {
+      const startDateStr = document.getElementById('tub1StartDate').value;
+      tub1Data.startDate = startDateStr;
+
+      const season = getCurrentSeason(startDateStr);
+      const totalWeeks = season.params.T;
+      const totalVol = parseFloat(settings.tubVolume) || 175;
+
+      const select = document.getElementById('tub1StepSelect');
+      select.innerHTML = '';
+
+      const opt0 = document.createElement('option');
+      opt0.value = 0;
+      opt0.innerText = `Week 0: 20% Base Wedge (${Math.round(totalVol * 0.2)}L)`;
+      select.appendChild(opt0);
+
+      const weeklyVol = (totalVol * 0.8) / totalWeeks;
+
+      for (let w = 1; w <= totalWeeks; w++) {
+        const pct = Math.round(20 + (w * (80 / totalWeeks)));
+        const vol = Math.round((pct / 100) * totalVol);
+        const opt = document.createElement('option');
+        opt.value = w;
+        opt.innerText = `Week ${w} Feed: ${pct}% (${vol}L) [+~${weeklyVol.toFixed(1)}L]`;
+        select.appendChild(opt);
+      }
+
+      if (tub1Data.step > totalWeeks) tub1Data.step = totalWeeks;
+      select.value = tub1Data.step;
+
+      localStorage.setItem('vermi_tub1', JSON.stringify(tub1Data));
+
+      const currentPct = Math.round(20 + (tub1Data.step * (80 / totalWeeks)));
+      const currentVol = Math.round((currentPct / 100) * totalVol);
+
+      document.getElementById('tub1VolBadge').innerText = `${currentPct}% (${currentVol}L)`;
+      document.getElementById('tub1ProgressText').innerText = `${currentPct}% (${currentVol}L / ${totalVol}L)`;
+      document.getElementById('tub1Fill').style.width = `${currentPct}%`;
+
+      document.getElementById('dirTxt').innerText = tub1Data.direction === 'RTL' ? '↵ RTL' : 'LTR ➔';
+
+      const startDate = new Date(startDateStr);
+      
+      const lastFeedDate = new Date(startDate);
+      lastFeedDate.setDate(lastFeedDate.getDate() + ((totalWeeks - 1) * 7));
+
+      const harvestDate = new Date(startDate);
+      harvestDate.setDate(harvestDate.getDate() + (totalWeeks * 7));
+
+      document.getElementById('tub1TargetAlert').innerHTML = `
+        <strong>Season:</strong> ${season.name} (${totalWeeks} Wks Total)<br>
+        <strong>Last Feed Date:</strong> ${lastFeedDate.toDateString()}<br>
+        <strong>Target Harvest / Refill Date:</strong> ${harvestDate.toDateString()}
+      `;
+
+      renderOverview();
+    }
+
+    function onTub1StepSelectChange() {
+      tub1Data.step = parseInt(document.getElementById('tub1StepSelect').value);
+      localStorage.setItem('vermi_tub1', JSON.stringify(tub1Data));
+      updateTub1Timeline();
+    }
+
+    function advanceTub1Step() {
+      const season = getCurrentSeason(tub1Data.startDate);
+      const totalWeeks = season.params.T;
+      if (tub1Data.step < totalWeeks) {
+        tub1Data.step += 1;
+      } else {
+        tub1Data.step = 0;
+        tub1Data.direction = (tub1Data.direction === 'RTL') ? 'LTR' : 'RTL';
+        tub1Data.startDate = new Date().toISOString().split('T')[0];
+        document.getElementById('tub1StartDate').value = tub1Data.startDate;
+      }
+      localStorage.setItem('vermi_tub1', JSON.stringify(tub1Data));
+      updateTub1Timeline();
+    }
+
+    function toggleTub1Direction() {
+      tub1Data.direction = (tub1Data.direction === 'RTL') ? 'LTR' : 'RTL';
+      localStorage.setItem('vermi_tub1', JSON.stringify(tub1Data));
+      updateTub1Timeline();
+    }
+
+    function resetTub1Wedge() {
+      if (confirm("Reset Tub 1 Wedge to 20% & flip march direction?")) {
+        tub1Data.step = 0;
+        tub1Data.direction = (tub1Data.direction === 'RTL') ? 'LTR' : 'RTL';
+        tub1Data.startDate = new Date().toISOString().split('T')[0];
+        document.getElementById('tub1StartDate').value = tub1Data.startDate;
+        localStorage.setItem('vermi_tub1', JSON.stringify(tub1Data));
+        updateTub1Timeline();
+      }
+    }
+
+    // --- TUB 2 ENGINE ---
+    function updateTub2Timelines() {
+      [1, 2].forEach(sideNum => {
+        const sideKey = 'side' + sideNum;
+        const startDateStr = document.getElementById(`${sideKey}StartDate`).value;
+        const phaseVal = parseInt(document.getElementById(`${sideKey}PhaseSelect`).value);
+
+        tub2Data[sideKey].startDate = startDateStr;
+        tub2Data[sideKey].phase = phaseVal;
+        localStorage.setItem('vermi_tub2', JSON.stringify(tub2Data));
+
+        const season = getCurrentSeason(startDateStr);
+        const p1Wks = season.params.p1;
+        const p2Wks = season.params.p2;
+        const p3Wks = season.params.p3;
+        const totalPhaseWks = phaseVal === 1 ? p1Wks : (phaseVal === 2 ? p2Wks : p3Wks);
+
+        const startDate = new Date(startDateStr);
+        const targetDate = new Date(startDate);
+        targetDate.setDate(targetDate.getDate() + (totalPhaseWks * 7));
+
+        const today = new Date();
+        const diffDays = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)));
+        const totalDays = totalPhaseWks * 7;
+        const pct = Math.min(100, Math.round((diffDays / totalDays) * 100));
+
+        document.getElementById(`${sideKey}Fill`).style.width = `${pct}%`;
+        document.getElementById(`${sideKey}ProgressText`).innerText = `${pct}% Phase Complete (${diffDays}/${totalDays} Days)`;
+
+        const phaseNames = ["Phase 1: Incubation", "Phase 2: Growing", "Phase 3: Trapping"];
+        document.getElementById(`${sideKey}PhaseBadge`).innerText = phaseNames[phaseVal - 1];
+
+        document.getElementById(`${sideKey}Alert`).innerHTML = `
+          <strong>Season:</strong> ${season.name} | <strong>Phase Range:</strong><br>
+          ${formatShortDate(startDate)} to ${formatShortDate(targetDate)} (${totalPhaseWks} Wks)
+        `;
+      });
+
+      renderOverview();
+    }
+
+    function advanceSidePhase(sideNum) {
+      const sideKey = 'side' + sideNum;
+      let currentPhase = tub2Data[sideKey].phase;
+      if (currentPhase < 3) {
+        currentPhase += 1;
+      } else {
+        currentPhase = 1;
+      }
+      tub2Data[sideKey].phase = currentPhase;
+      tub2Data[sideKey].startDate = new Date().toISOString().split('T')[0];
+      
+      document.getElementById(`${sideKey}StartDate`).value = tub2Data[sideKey].startDate;
+      document.getElementById(`${sideKey}PhaseSelect`).value = currentPhase;
+      
+      localStorage.setItem('vermi_tub2', JSON.stringify(tub2Data));
+      updateTub2Timelines();
+    }
+
+    // --- OVERVIEW MASTER RENDERER ---
+    function renderOverview() {
+      const totalVol = parseFloat(settings.tubVolume) || 175;
+      const season = getCurrentSeason(tub1Data.startDate);
+      const totalWeeks = season.params.T;
+
+      const startDate = new Date(tub1Data.startDate);
+      const harvestDate = new Date(startDate);
+      harvestDate.setDate(harvestDate.getDate() + (totalWeeks * 7));
+
+      const today = new Date();
+      const totalDays = totalWeeks * 7;
+      const elapsedDays = Math.max(0, Math.floor((today - startDate) / (1000 * 60 * 60 * 24)));
+      const remainingDays = Math.max(0, totalDays - elapsedDays);
+      const masterPct = Math.min(100, Math.round((elapsedDays / totalDays) * 100));
+
+      document.getElementById('ovMasterBadge').innerText = `${remainingDays} Days Left`;
+      document.getElementById('ovMasterFill').style.width = `${masterPct}%`;
+      document.getElementById('ovMasterText').innerText = `${masterPct}% to System Harvest`;
+      document.getElementById('ovMasterDateInfo').innerHTML = `Target Joint Harvest Date: <strong>${harvestDate.toDateString()}</strong>`;
+
+      const s1Phase = tub2Data.side1.phase;
+      const s2Phase = tub2Data.side2.phase;
+      const isBaited = (s1Phase === 3 || s2Phase === 3);
+
+      const warningElement = document.getElementById('ovTrappingWarning');
+      if (tub1Data.step >= (totalWeeks - 2) && !isBaited) {
+        warningElement.style.display = 'block';
+      } else {
+        warningElement.style.display = 'none';
+      }
+
+      const currentPct = Math.round(20 + (tub1Data.step * (80 / totalWeeks)));
+      const currentVol = Math.round((currentPct / 100) * totalVol);
+      const dir = tub1Data.direction || 'LTR';
+
+      document.getElementById('ovTub1Badge').innerText = `${currentPct}% (${currentVol}L / ${totalVol}L)`;
+
+      const svgTub1 = document.getElementById('svgTub1');
+      let fillShapeMarkup = '';
+      let slopeMarkup = '';
+      let textMarkup = '';
+
+      if (currentPct >= 100) {
+        fillShapeMarkup = `<rect x="25" y="25" width="250" height="67" fill="url(#wedgeGrad)" opacity="0.9"/>`;
+        textMarkup = `<text x="150" y="60" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">100% FULL — HARVEST READY</text>`;
+      } else {
+        const wWidth = (currentPct / 100) * 250;
+        if (dir === 'LTR') {
+          const xCurr = 25 + wWidth;
+          const xTop = Math.max(25, xCurr - 28);
+          fillShapeMarkup = `<polygon points="25,25 25,92 ${xCurr},92 ${xTop},25" fill="url(#wedgeGrad)" opacity="0.85"/>`;
+          slopeMarkup = `<line x1="${xTop}" y1="25" x2="${xCurr}" y2="92" stroke="#81c784" stroke-width="3" stroke-dasharray="3"/>`;
+          textMarkup = `<text x="35" y="60" fill="#e2ebe1" font-size="10" font-weight="bold">Colony ➔</text>`;
+        } else {
+          const xCurr = 275 - wWidth;
+          const xTop = Math.min(275, xCurr + 28);
+          fillShapeMarkup = `<polygon points="275,25 275,92 ${xCurr},92 ${xTop},25" fill="url(#wedgeGrad)" opacity="0.85"/>`;
+          slopeMarkup = `<line x1="${xTop}" y1="25" x2="${xCurr}" y2="92" stroke="#81c784" stroke-width="3" stroke-dasharray="3"/>`;
+          textMarkup = `<text x="220" y="60" fill="#e2ebe1" font-size="10" font-weight="bold">↵ Colony</text>`;
+        }
+      }
+
+      svgTub1.innerHTML = `
+        <path d="M 15 20 L 25 90 Q 25 102 40 102 L 260 102 Q 275 102 275 90 L 285 20 Z" fill="#1c241b" stroke="#2e3d2c" stroke-width="3"/>
+        <rect x="27" y="91" width="246" height="8" fill="#382e22" rx="2"/>
+        ${fillShapeMarkup}
+        ${slopeMarkup}
+        ${textMarkup}
+        <defs>
+          <linearGradient id="wedgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="${dir === 'LTR' ? '#253124' : '#4caf50'}"/>
+            <stop offset="100%" stop-color="${dir === 'LTR' ? '#4caf50' : '#253124'}"/>
+          </linearGradient>
+        </defs>
+      `;
+
+      const nextFeedWeek = (tub1Data.step < totalWeeks) ? tub1Data.step + 1 : totalWeeks;
+      const nextFeedDate = new Date(startDate);
+      nextFeedDate.setDate(nextFeedDate.getDate() + (nextFeedWeek * 7));
+
+      const weeklyVol = ((totalVol * 0.8) / totalWeeks).toFixed(1);
+
+      if (tub1Data.step >= totalWeeks) {
+        document.getElementById('ovTub1Info').innerHTML = `
+          <strong>Status:</strong> 100% Full — Harvest Ready by ${formatShortDate(harvestDate)}
+        `;
+      } else {
+        document.getElementById('ovTub1Info').innerHTML = `
+          <strong>Next Feed:</strong> ~${weeklyVol}L by ${formatShortDate(nextFeedDate)}
+        `;
+      }
+
+      document.getElementById('ovTub2Badge').innerText = isBaited ? 'BAITED TOTE' : 'IDLE';
+
+      const svgTub2 = document.getElementById('svgTub2');
+
+      let s1Graphics = (s1Phase === 1) ? `<circle cx="50" cy="55" r="4" fill="#ffb74d"/><circle cx="70" cy="70" r="4" fill="#ffb74d"/><text x="25" y="38" fill="#ffb74d" font-size="9" font-weight="bold">Phase 1: Cocoons</text>`
+                     : (s1Phase === 2) ? `<path d="M 40 55 Q 50 45 60 60 T 70 65" fill="none" stroke="#81c784" stroke-width="2"/><text x="25" y="38" fill="#81c784" font-size="9" font-weight="bold">Phase 2: Babies</text>`
+                     : `<path d="M 30 55 L 105 55" fill="none" stroke="#64b5f6" stroke-width="2" stroke-dasharray="3"/><text x="20" y="38" fill="#64b5f6" font-size="9" font-weight="bold">Phase 3: Trapping ➔</text>`;
+
+      let s2Graphics = (s2Phase === 1) ? `<circle cx="230" cy="55" r="4" fill="#ffb74d"/><circle cx="250" cy="70" r="4" fill="#ffb74d"/><text x="200" y="38" fill="#ffb74d" font-size="9" font-weight="bold">Phase 1: Cocoons</text>`
+                     : (s2Phase === 2) ? `<path d="M 220 55 Q 230 45 240 60 T 250 65" fill="none" stroke="#81c784" stroke-width="2"/><text x="200" y="38" fill="#81c784" font-size="9" font-weight="bold">Phase 2: Babies</text>`
+                     : `<path d="M 270 55 L 195 55" fill="none" stroke="#64b5f6" stroke-width="2" stroke-dasharray="3"/><text x="190" y="38" fill="#64b5f6" font-size="9" font-weight="bold">Phase 3: Trapping</text>`;
+
+      const toteFill = isBaited ? "#4caf50" : "#253124";
+      const toteStroke = isBaited ? "#81c784" : "#2e3d2c";
+
+      svgTub2.innerHTML = `
+        <path d="M 15 20 L 25 90 Q 25 102 40 102 L 260 102 Q 275 102 275 90 L 285 20 Z" fill="#1c241b" stroke="#2e3d2c" stroke-width="3"/>
+        <line x1="110" y1="20" x2="110" y2="102" stroke="#2e3d2c" stroke-width="1.5" stroke-dasharray="2"/>
+        <line x1="190" y1="20" x2="190" y2="102" stroke="#2e3d2c" stroke-width="1.5" stroke-dasharray="2"/>
+
+        <rect x="15" y="20" width="95" height="82" fill="transparent" onclick="advanceSidePhase(1)"/>
+        <rect x="190" y="20" width="95" height="82" fill="transparent" onclick="advanceSidePhase(2)"/>
+
+        ${s1Graphics}
+        <rect x="115" y="28" width="70" height="68" fill="${toteFill}" stroke="${toteStroke}" stroke-width="2.5" rx="4" opacity="0.9"/>
+        <circle cx="122" cy="48" r="2" fill="#121811"/><circle cx="122" cy="68" r="2" fill="#121811"/>
+        <circle cx="178" cy="48" r="2" fill="#121811"/><circle cx="178" cy="68" r="2" fill="#121811"/>
+        <text x="122" y="65" fill="#ffffff" font-size="8.5" font-weight="bold">${isBaited ? 'BAITED' : '40L TOTE'}</text>
+        ${s2Graphics}
+      `;
+
+      const s1Start = new Date(tub2Data.side1.startDate);
+      const s1Season = getCurrentSeason(tub2Data.side1.startDate);
+      const s1Wks = (s1Phase === 1) ? s1Season.params.p1 : (s1Phase === 2 ? s1Season.params.p2 : s1Season.params.p3);
+      const s1End = new Date(s1Start);
+      s1End.setDate(s1End.getDate() + (s1Wks * 7));
+
+      const s2Start = new Date(tub2Data.side2.startDate);
+      const s2Season = getCurrentSeason(tub2Data.side2.startDate);
+      const s2Wks = (s2Phase === 1) ? s2Season.params.p1 : (s2Phase === 2 ? s2Season.params.p2 : s2Season.params.p3);
+      const s2End = new Date(s2Start);
+      s2End.setDate(s2End.getDate() + (s2Wks * 7));
+
+      document.getElementById('ovTub2Info').innerHTML = `
+        <strong>Left:</strong> ${formatShortDate(s1Start)} to ${formatShortDate(s1End)}<br>
+        <strong>Right:</strong> ${formatShortDate(s2Start)} to ${formatShortDate(s2End)}<br>
+        <strong>Tote:</strong> ${isBaited ? 'Baited & Active' : 'Idle / Unbaited'}
+      `;
+    }
+
+    // --- SETTINGS SAVE & VALIDATION ---
+    function saveSettings() {
+      settings.tubVolume = parseFloat(document.getElementById('cfgTubVolume').value) || 175;
+      settings.summerStart = document.getElementById('cfgSummerStart').value;
+      settings.autumnStart = document.getElementById('cfgAutumnStart').value;
+      settings.winterStart = document.getElementById('cfgWinterStart').value;
+      settings.springStart = document.getElementById('cfgSpringStart').value;
+
+      ['sum', 'aut', 'win'].forEach(s => {
+        settings[s].T = parseInt(document.getElementById(`cfg${capitalize(s)}T`).value) || 8;
+        settings[s].p1 = parseInt(document.getElementById(`cfg${capitalize(s)}P1`).value) || 7;
+        settings[s].p2 = parseInt(document.getElementById(`cfg${capitalize(s)}P2`).value) || 5;
+        settings[s].p3 = parseInt(document.getElementById(`cfg${capitalize(s)}P3`).value) || 4;
+      });
+
+      localStorage.setItem('vermi_settings', JSON.stringify(settings));
+      updateTub1Timeline();
+      updateTub2Timelines();
+      validateHarmony();
+    }
+
+    function validateHarmony() {
+      let isHarmonious = true;
+      let msg = [];
+
+      ['sum', 'aut', 'win'].forEach(s => {
+        const T = settings[s].T;
+        const sumP = settings[s].p1 + settings[s].p2 + settings[s].p3;
+        if (sumP !== (2 * T)) {
+          isHarmonious = false;
+          msg.push(`${capitalize(s)}: P1+P2+P3 (${sumP} wks) != 2T (${2*T} wks)`);
+        }
+      });
+
+      const alertBox = document.getElementById('harmonyAlert');
+      if (isHarmonious) {
+        alertBox.className = "alert-box alert-info";
+        alertBox.innerHTML = "<strong>Validation Check:</strong> All seasons in 2:1 harmonic balance (P1+P2+P3 = 2T).";
+      } else {
+        alertBox.className = "alert-box alert-warning";
+        alertBox.innerHTML = `<strong>Validation Warning:</strong> Timelines out of balance:<br>${msg.join('<br>')}`;
+      }
+    }
+
+    // Launch App
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
